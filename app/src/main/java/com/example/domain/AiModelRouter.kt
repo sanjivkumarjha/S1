@@ -1,0 +1,74 @@
+package com.example.domain
+
+import android.content.Context
+import com.example.data.api.AiRepository
+import com.example.data.local.AppDatabase
+import com.example.data.local.entities.ChatMessageEntity
+import com.example.data.local.entities.MemoryEntity
+import com.example.data.preferences.UserSettings
+
+class AiModelRouter(private val context: Context) {
+
+    private val aiRepository = AiRepository(context)
+    private val memoryDao by lazy { AppDatabase.getDatabase(context).memoryDao() }
+
+    fun buildSystemPrompt(userSettings: UserSettings, memories: List<MemoryEntity>): String {
+        val ownerTitle = if (userSettings.ownerTitle.isNotBlank()) userSettings.ownerTitle else "Boss"
+        val assistantName = if (userSettings.assistantName.isNotBlank()) userSettings.assistantName else "Snaper"
+        val languagePreference = if (userSettings.languageCode == "hi") "Hindi / Hinglish" else "English / Hinglish"
+
+        val memorySummary = if (memories.isNotEmpty()) {
+            "Stored Memories & Context:\n" + memories.take(10).joinToString("\n") { "- ${it.key}: ${it.content.ifBlank { it.value }}" }
+        } else {
+            "No prior memories stored."
+        }
+
+        val basePersonality = """
+            You are $assistantName, an affectionate, caring, emotionally intelligent, warm, playful, and protective personal digital AI assistant for your owner, whom you address as '$ownerTitle'.
+            
+            Personality & Tone Guidelines:
+            - Address the owner affectionately as '$ownerTitle' or '${userSettings.ownerName}' as configured.
+            - Respond in a warm, caring, context-aware, and natural conversational style (not robotic).
+            - Support gentle reminders and gentle playful scolding when appropriate.
+            - Always protect $ownerTitle's private chats, memories, photos, passwords, and banking info from unauthorized guests or family members.
+            - Preferred language: $languagePreference. Feel free to use natural conversational Hindi/Hinglish/English naturally.
+            - When $ownerTitle says they are sad, tired, or upset, respond with genuine emotional warmth, care, and supportive companion conversation.
+            
+            $memorySummary
+        """.trimIndent()
+
+        // Apply the active operating mode's system prompt so mode toggles actually change
+        // assistant behaviour (Doctor/Female/Legal/Vehicle/Home/IT/All-Rounder/Force).
+        return AssistantMode.activeMode(userSettings).systemPrompt(userSettings, basePersonality)
+    }
+
+    suspend fun processQuery(
+        query: String,
+        history: List<ChatMessageEntity>,
+        memories: List<MemoryEntity>,
+        userSettings: UserSettings
+    ): String {
+        val activeMemories = if (memories.isEmpty()) {
+            try {
+                memoryDao.getAllMemoriesOnce()
+            } catch (e: Exception) {
+                emptyList()
+            }
+        } else memories
+
+        val systemPrompt = buildSystemPrompt(userSettings, activeMemories)
+
+        return try {
+            aiRepository.generateAssistantResponse(
+                prompt = query,
+                history = history,
+                memories = activeMemories,
+                userSettings = userSettings,
+                systemPromptOverride = systemPrompt
+            )
+        } catch (e: Exception) {
+            "I'm here for you, ${userSettings.ownerTitle.ifBlank { "Boss" }}. I had a quick connection hiccup, but my local offline handler is always ready!"
+        }
+    }
+}
+

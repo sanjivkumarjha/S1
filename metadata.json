@@ -1,0 +1,6 @@
+{
+  "name": "Snaper Technology",
+  "description": "Snaper Technology - AI Assistant app with modern design, multi-provider AI, voice features, and local memory.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
