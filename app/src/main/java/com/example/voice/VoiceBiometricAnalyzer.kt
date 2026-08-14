@@ -17,7 +17,7 @@ import kotlin.math.log10
 import kotlin.math.sqrt
 
 /**
- * Advanced Owner Voice Biometric Verification Engine (Jarvis Style).
+ * Advanced Owner Voice Biometric Verification Engine (Snaper Style).
  * Captures real-time audio samples via AudioRecord, computes acoustic spectral features
  * (Energy, Zero-Crossing Rate, Spectral Centroid, Peak Magnitudes), and matches against
  * the owner's enrolled biometric voice-print.

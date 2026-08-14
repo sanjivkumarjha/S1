@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:snaper_ai_assistant/data/preferences/user_settings.dart';
 import 'package:snaper_ai_assistant/ui/glass/glass_components.dart';
+import 'package:snaper_ai_assistant/ui/screens/control_panel_screen.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -175,7 +176,7 @@ class HomeScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "राधे-राधे ${settings.ownerName}! ✨",
+                      "${settings.getLocalizedText("greeting")} ${settings.ownerName}! ✨",
                       style: TextStyle(
                         color: Colors.white, 
                         fontSize: width < 360 ? 16 : 19, 
@@ -196,7 +197,15 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
         ),
-        GlassIconButton(icon: Icons.settings, onClick: () {}),
+        GlassIconButton(
+          icon: Icons.settings,
+          onClick: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ControlPanelScreen()),
+            );
+          },
+        ),
       ],
     );
   }
@@ -208,18 +217,40 @@ class HomeScreen extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: GlassCard(
-
-            child: Container(
-              width: double.infinity,
-              alignment: Alignment.center,
-              child: Text(
-                "जय श्री राधे कृष्ण",
-
-                style: TextStyle(
-                  color: Colors.orangeAccent, 
-                  fontSize: 18, 
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2
+            child: InkWell(
+              onTap: () {
+                settings.incrementRadhaJap();
+              },
+              child: Container(
+                width: double.infinity,
+                child: Column(
+                  children: [
+                    Text(
+                      "जय श्री राधे कृष्ण (Jap Counter)",
+                      style: TextStyle(
+                        color: Colors.orangeAccent, 
+                        fontSize: 16, 
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.1
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.brightness_7, color: Colors.orangeAccent, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          "Count: ${settings.radhaJapCount}",
+                          style: TextStyle(
+                            color: Colors.white, 
+                            fontSize: 18, 
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),

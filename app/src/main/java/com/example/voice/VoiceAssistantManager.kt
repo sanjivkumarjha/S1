@@ -179,7 +179,7 @@ class VoiceAssistantManager(private val context: Context) : TextToSpeech.OnInitL
     }
 
     var onWakeWordDetected: ((String) -> Unit)? = null
-    var wakeWords: List<String> = listOf("snaper", "jarvis", "gemini", "hey snaper", "radhe radhe", "alexa", "siri")
+    var wakeWords: List<String> = listOf("snaper", "gemini", "hey snaper", "radhe radhe", "alexa", "siri")
 
     override fun onResults(results: Bundle?) {
         val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)

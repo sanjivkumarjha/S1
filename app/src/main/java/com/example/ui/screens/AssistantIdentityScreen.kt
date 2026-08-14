@@ -51,7 +51,7 @@ fun AssistantIdentityScreen(
     var assistantName by remember(userSettings) { mutableStateOf(userSettings?.assistantName ?: "Snaper") }
     var wakePhrase by remember(userSettings) { mutableStateOf(userSettings?.wakePhrase ?: "Hey Snaper") }
 
-    val presetNames = listOf("Sultan", "Jarvis", "Rocky", "Snaper", "Roshni", "Friday", "Nova", "Alexa")
+    val presetNames = listOf("Sultan", "Radha", "Rocky", "Snaper", "Roshni", "Friday", "Nova", "Alexa")
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -121,7 +121,7 @@ fun AssistantIdentityScreen(
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "Customize your assistant's wake name (e.g., 'Sultan', 'Jarvis', 'Rocky', 'Snaper'). The listening engine will continuously capture audio in the background and respond immediately.",
+                        text = "Customize your assistant's wake name (e.g., 'Sultan', 'Radha', 'Rocky', 'Snaper'). The listening engine will continuously capture audio in the background and respond immediately.",
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f)
                     )
