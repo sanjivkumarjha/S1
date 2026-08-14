@@ -33,8 +33,8 @@ enum class AiProvider(val displayName: String, val defaultBaseUrl: String) {
 }
 
 data class UserSettings(
-    val ownerName: String = "Sanjiv",
-    val ownerTitle: String = "Boss", // "Boss", "Sir", "Sanjiv", etc.
+    val ownerName: String = "Sanjiv Sir",
+    val ownerTitle: String = "Sanjiv Sir", // "Sanjiv Sir", "Sir", etc.
     val ownerBio: String = "Creator & Leader",
     val ownerPhotoUri: String = "",
     val assistantName: String = "Snaper",
@@ -307,8 +307,8 @@ class UserPreferencesRepository(private val context: Context) {
 
     val userSettingsFlow: Flow<UserSettings> = context.dataStore.data.map { prefs ->
         UserSettings(
-            ownerName = prefs[Keys.OWNER_NAME] ?: "User",
-            ownerTitle = prefs[Keys.OWNER_TITLE] ?: "Boss",
+            ownerName = prefs[Keys.OWNER_NAME] ?: "Sanjiv Sir",
+            ownerTitle = prefs[Keys.OWNER_TITLE] ?: "Sanjiv Sir",
             ownerBio = prefs[Keys.OWNER_BIO] ?: "Visionary Creator",
             ownerPhotoUri = prefs[Keys.OWNER_PHOTO_URI] ?: "",
             assistantName = prefs[Keys.ASSISTANT_NAME] ?: "Snaper",

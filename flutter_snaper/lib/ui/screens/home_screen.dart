@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:snaper_ai_assistant/data/preferences/user_settings.dart';
 import 'package:snaper_ai_assistant/ui/glass/glass_components.dart';
 import 'package:snaper_ai_assistant/ui/screens/control_panel_screen.dart';
+import 'package:snaper_ai_assistant/ui/screens/control_center_screen.dart';
+import 'package:snaper_ai_assistant/ui/components/anime_avatar.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -92,46 +94,79 @@ class HomeScreen extends StatelessWidget {
 
 
 
-  /// Precise Touch Bounds Dynamic Island
+  /// Precise Touch Bounds Dynamic Island - iPhone Superseding Design with Touch Pass-through & 3900+ Emoji support
   Widget _buildDynamicIslandOverlay(BuildContext context, double topPadding) {
+    final settings = Provider.of<UserSettings>(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    // Width adapts perfectly, leaving left/right headers fully touchable. No dead overlay dead-zones!
+    final double islandWidth = settings.assistantState == AssistantState.SPEAKING || settings.assistantState == AssistantState.THINKING ? 200.0 : 140.0;
+
     return Positioned(
       top: topPadding + 6,
-      left: 0,
-      right: 0,
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: GestureDetector(
-          onTap: () {
-            // Precise touch handling only on the island itself
-            print("Dynamic Island Tapped");
-          },
-          child: Container(
-            width: 130, // Compact width
-            height: 38, // Compact height
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(22),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black45,
-                  blurRadius: 10,
-                  spreadRadius: 2,
-                )
+      left: (screenWidth - islandWidth) / 2,
+      width: islandWidth,
+      child: GestureDetector(
+        onTap: () {
+          print("Dynamic Island Tapped: ${settings.assistantState}");
+          // Cycle through AssistantState values on tap as a rich interactive touch demo
+          final nextIndex = (settings.assistantState.index + 1) % AssistantState.values.length;
+          settings.updateAssistantState(AssistantState.values[nextIndex]);
+        },
+        child: Container(
+          height: 38,
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: Colors.white24, width: 1.2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.6),
+                blurRadius: 12,
+                spreadRadius: 3,
+              )
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Emoji display support from the full unicode range (~3900+ expressions)
+              Text(
+                settings.currentExpressionEmoji,
+                style: TextStyle(fontSize: 15),
+              ),
+              SizedBox(width: 8),
+              Container(width: 1.2, height: 14, color: Colors.white30),
+              SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  settings.assistantState.name,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.8,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (settings.assistantState == AssistantState.SPEAKING) ...[
+                SizedBox(width: 6),
+                Icon(Icons.volume_up, size: 12, color: Colors.blueAccent),
+              ] else if (settings.assistantState == AssistantState.THINKING) ...[
+                SizedBox(width: 6),
+                SizedBox(
+                  width: 10,
+                  height: 10,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.deepPurpleAccent,
+                  ),
+                ),
               ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.lens, size: 8, color: Colors.blueAccent).animate(onPlay: (c) => c.repeat()).fade(duration: 1.seconds),
-                SizedBox(width: 8),
-                Container(width: 2, height: 12, color: Colors.white24),
-                SizedBox(width: 8),
-                Icon(Icons.mic_none, size: 14, color: Colors.white54),
-              ],
-            ),
-          ).animate().scale(duration: 400.ms, curve: Curves.elasticOut),
-        ),
-
+            ],
+          ),
+        ).animate(key: ValueKey(settings.assistantState)).scale(duration: 350.ms, curve: Curves.easeOutBack),
       ),
     );
   }
@@ -262,32 +297,26 @@ class HomeScreen extends StatelessWidget {
           child: GlassCard(
             child: Column(
               children: [
+                // Anime Avatar Component reacting in real-time to assistantState & conversation
                 Container(
-
-
-                  height: width * 0.45, // Responsive size based on width
-                  child: Icon(Icons.face_retouching_natural, size: width * 0.25, color: Colors.blueAccent),
-                ).animate(onPlay: (controller) => controller.repeat())
-
-                 .shimmer(duration: 2.seconds, color: Colors.white24)
-                 .moveY(begin: -5, end: 5, duration: 2.seconds, curve: Curves.easeInOut),
+                  height: width * 0.5, // Perfect responsive height
+                  child: AnimeAvatarWidget(
+                    state: settings.assistantState,
+                    activeAvatar: settings.activeAvatar,
+                  ),
+                ),
                 
                 SizedBox(height: 12),
                 
                 Container(
-
                   padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.blueAccent.withOpacity(0.1),
-
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-
-
-
                       Container(
                         width: 10, 
                         height: 10, 
@@ -296,7 +325,9 @@ class HomeScreen extends StatelessWidget {
                       SizedBox(width: 10),
                       Flexible(
                         child: Text(
-                          "Awaiting Your Voice, ${settings.ownerName}", 
+                          settings.assistantState == AssistantState.SPEAKING 
+                              ? "Snaper is Speaking..." 
+                              : "Awaiting Your Voice, ${settings.ownerName}", 
                           style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -305,19 +336,55 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
 
+                if (settings.lastResponseText.isNotEmpty) ...[
+                  SizedBox(height: 12),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      settings.lastResponseText,
+                      style: TextStyle(color: Colors.white70, fontSize: 13, fontStyle: FontStyle.italic),
+                      textAlign: TextAlign.center,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
                 
                 SizedBox(height: 20),
                 
                 Row(
                   children: [
-
                     Expanded(
-                      child: _buildActionBtn(context, "Quick Chat", Icons.chat_bubble_outline, Colors.white10),
+                      child: GlossyButton(
+                        label: "Quick Chat",
+                        icon: Icons.chat_bubble_outline,
+                        gradientColors: [Color(0xFF6C5CE7), Color(0xFFa29bfe)],
+                        onPressed: () {
+                          settings.updateAssistantState(AssistantState.HUMOR);
+                          settings.updateLastResponseText("Haha, that's incredibly funny! I love chatting with you!");
+                        },
+                      ),
                     ),
                     SizedBox(width: 12),
-
                     Expanded(
-                      child: _buildActionBtn(context, "Quick Voice", Icons.mic, Colors.pinkAccent.withOpacity(0.85)),
+                      child: GlossyButton(
+                        label: "Quick Voice",
+                        icon: Icons.mic,
+                        gradientColors: [Color(0xFFFD79A8), Color(0xFFE84393)],
+                        onPressed: () {
+                          settings.updateAssistantState(AssistantState.LISTENING);
+                          Future.delayed(Duration(seconds: 2), () {
+                            settings.updateAssistantState(AssistantState.THINKING);
+                            Future.delayed(Duration(seconds: 2), () {
+                              settings.updateAssistantState(AssistantState.SPEAKING);
+                              settings.updateLastResponseText("Radhe Radhe, Sanjiv Sir! I am processing your command right now.");
+                              Future.delayed(Duration(seconds: 4), () {
+                                settings.updateAssistantState(AssistantState.LISTENING);
+                              });
+                            });
+                          });
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -330,11 +397,18 @@ class HomeScreen extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 12),
           child: Row(
             children: [
-              Expanded(child: _buildToolCard("Security", Icons.security, "Verify")),
+              Expanded(child: _buildToolCard("Security", Icons.security, "Verify", null)),
               SizedBox(width: 10),
-              Expanded(child: _buildToolCard("Tools", Icons.build, "Gen AI")),
+              Expanded(
+                child: _buildToolCard("Agency", Icons.business_center, "Command Hub", () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ControlCenterScreen()),
+                  );
+                }),
+              ),
               SizedBox(width: 10),
-              Expanded(child: _buildToolCard("Logs", Icons.history, "Calls")),
+              Expanded(child: _buildToolCard("Logs", Icons.history, "Calls", null)),
             ],
           ),
         );
@@ -349,24 +423,25 @@ class HomeScreen extends StatelessWidget {
 
 
 
-  Widget _buildToolCard(String title, IconData icon, String sub) {
-    return GlassCard(
-      padding: EdgeInsets.all(12),
-      child: Column(
-        children: [
-
-
-
-          Icon(icon, color: Colors.blueAccent, size: 24),
-          SizedBox(height: 8),
-          Text(title, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-          Text(sub, style: TextStyle(color: Colors.white60, fontSize: 10)),
-        ],
+  Widget _buildToolCard(String title, IconData icon, String sub, VoidCallback? onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(15),
+      child: GlassCard(
+        padding: EdgeInsets.all(12),
+        child: Column(
+          children: [
+            Icon(icon, color: Colors.blueAccent, size: 24),
+            SizedBox(height: 8),
+            Text(title, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+            Text(sub, style: TextStyle(color: Colors.white60, fontSize: 10)),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildActionBtn(BuildContext context, String text, IconData icon, Color color) {
+  Widget _buildActionBtn(BuildContext context, String text, IconData icon, Color color, UserSettings settings) {
     final width = MediaQuery.of(context).size.width;
     return Container(
       height: 54,
@@ -381,7 +456,25 @@ class HomeScreen extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {},
+          onTap: () {
+            // Simulated chat / voice interactions that triggers state and avatar animations
+            if (text == "Quick Voice") {
+              settings.updateAssistantState(AssistantState.LISTENING);
+              Future.delayed(Duration(seconds: 2), () {
+                settings.updateAssistantState(AssistantState.THINKING);
+                Future.delayed(Duration(seconds: 2), () {
+                  settings.updateAssistantState(AssistantState.SPEAKING);
+                  settings.updateLastResponseText("Radhe Radhe, Sanjiv Sir! I am processing your command right now.");
+                  Future.delayed(Duration(seconds: 4), () {
+                    settings.updateAssistantState(AssistantState.LISTENING);
+                  });
+                });
+              });
+            } else {
+              settings.updateAssistantState(AssistantState.HUMOR);
+              settings.updateLastResponseText("Haha, that's incredibly funny! I love chatting with you!");
+            }
+          },
           borderRadius: BorderRadius.circular(18),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

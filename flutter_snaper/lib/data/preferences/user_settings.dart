@@ -1,6 +1,22 @@
 import 'package:flutter/material.dart';
 
+enum AssistantState {
+  LISTENING,
+  THINKING,
+  SPEAKING,
+  HUMOR,
+  ANGER,
+  CAMERA_ACTIVE,
+  TORCH,
+  AUTOMATION,
+  EMERGENCY
+}
+
 class UserSettings extends ChangeNotifier {
+  // Real-time Assistant State
+  AssistantState assistantState = AssistantState.LISTENING;
+  String currentExpressionEmoji = "🎙️";
+  String lastResponseText = "";
   // Brand Configuration
   final String productName = "Snaper AI Assistant";
   final String corporateAttribution = "Made by Snaper Technology Pvt Ltd";
@@ -8,6 +24,10 @@ class UserSettings extends ChangeNotifier {
 
   // State Variables
   String ownerName = "Sanjiv Sir";
+  String ownerFullNameEn = "Sanjiv Kumar Jha";
+  String ownerFullNameHi = "संजीव कुमार झा";
+  bool isExplicitBhaiAllowed = false;
+  bool isOnline = true;
   String languageCode = "en";
   bool isAutoStartOnBootEnabled = true;
   bool homeGreetingEmojiEnabled = true;
@@ -20,6 +40,22 @@ class UserSettings extends ChangeNotifier {
   
   // Radha Naam Jap Widget
   int radhaJapCount = 108;
+  int radhaJapTarget = 108;
+  bool bhaktiModeEnabled = false;
+  bool shownJapOverlay = false;
+  bool complainedToFamily = false;
+
+  // High-Precision App Selector Map
+  Map<String, bool> enabledApps = {
+    "WhatsApp": true,
+    "WhatsApp Business": false,
+    "Instagram": true,
+    "Instagram Lite": false,
+    "Facebook": true,
+    "YouTube": true,
+    "Google Play Store": true,
+    "System Files": true,
+  };
 
   // Avatar & App Icon Studios
   String activeAvatar = "3D Hologram Classic"; // Classic 3D, Cyberpunk, Friendly 2D, Spark Sparkle
@@ -197,11 +233,75 @@ class UserSettings extends ChangeNotifier {
       "radha_jap": "રાધા નામ જાપ",
       "avatar_studio": "અવતાર સ્ટુડિયો",
       "app_icon_studio": "એપ્લિકેશન આયકન સ્ટુડિયો",
-      "memory_vault": "મેમરી વૉલ્ટ",
+      "memory_vault": "મેમरी વૉલ્ટ",
       "device_transfer": "ડિવાઇસ ટ્રાન્સફર",
       "backup_restore": "બેકઅપ અને રિકવરી",
       "owner_profile": "પ્રોફાઇલ",
       "select_language": "ભાષા પસંદ કરો",
+    },
+    "bho": {
+      "app_title": "स्नैपर एआई असिस्टेंट",
+      "made_by": "स्नैपर टेक्नोलॉजी प्राइवेट लिमिटेड द्वारा बनल",
+      "greeting": "राधे राधे",
+      "model_status": "एआई मॉडल ऑटो-डिटेक्ट",
+      "settings": "सेटिंग्स",
+      "active_mode": "सक्रिय मोड",
+      "radha_jap": "राधा नाम जप",
+      "avatar_studio": "अवतार स्टूडियो",
+      "app_icon_studio": "ऐप आइकन स्टूडियो",
+      "memory_vault": "यादगार तिजोरी",
+      "device_transfer": "डिवाइस ट्रांसफर",
+      "backup_restore": "बैकअप आ रिकवरी",
+      "owner_profile": "प्रोफाइल",
+      "select_language": "भाषा चुनीं",
+    },
+    "kn": {
+      "app_title": "ಸ್ನ್ಯಾಪರ್ ಎಐ ಅಸಿಸ್ಟೆಂಟ್",
+      "made_by": "ಸ್ನ್ಯಾಪರ್ ಟೆಕ್ನಾಲಜಿ ಪ್ರೈವೇಟ್ ಲಿಮಿಟೆಡ್‌ನಿಂದ ತಯಾರಿಸಲ್ಪಟ್ಟಿದೆ",
+      "greeting": "ರಾಧೇ ರಾಧೇ",
+      "model_status": "ಎಐ ಮಾಡೆಲ್ ಆಟೋ-ಡಿಟೆಕ್ಟ್",
+      "settings": "ಸೆಟ್ಟಿಂಗ್‌ಗಳು",
+      "active_mode": "ಸಕ್ರಿಯ ಮೋಡ್",
+      "radha_jap": "ರಾಧಾ ನಾಮ ಜಪ",
+      "avatar_studio": "ಅವತಾರ್ ಸ್ಟುಡಿಯೋ",
+      "app_icon_studio": "ಆಪ್ ಐಕಾನ್ ಸ್ಟುಡಿಯೋ",
+      "memory_vault": "ಮೆಮೊರಿ ವಾಲ್ಟ್",
+      "device_transfer": "ಸಾಧನ ವರ್ಗಾವಣೆ",
+      "backup_restore": "ಬ್ಯಾಕಪ್ ಮತ್ತು ಮರುಪಡೆಯುವಿಕೆ",
+      "owner_profile": "ಪ್ರೊಫೈಲ್",
+      "select_language": "ಭಾಷೆಯನ್ನು ಆರಿಸಿ",
+    },
+    "ml": {
+      "app_title": "സ്നാപ്പർ എഐ അസിസ്റ്റന്റ്",
+      "made_by": "സ്നാപ്പർ ടെക്നോളജി പ്രൈവറ്റ് ലിമിറ്റഡ് നിർമ്മിച്ചത്",
+      "greeting": "രാധേ രാധേ",
+      "model_status": "AI മോഡൽ ഓട്ടോ-ഡിറ്റക്റ്റ്",
+      "settings": "ക്രമീകരണങ്ങൾ",
+      "active_mode": "സജീവ മോഡ്",
+      "radha_jap": "രാധാ നാമ ജപം",
+      "avatar_studio": "അവതാർ സ്റ്റുഡിയോ",
+      "app_icon_studio": "ആപ്പ് ഐക്കൺ സ്റ്റുഡിയോ",
+      "memory_vault": "മെമ്മറി വോൾട്ട്",
+      "device_transfer": "ഉപകരണ കൈമാറ്റം",
+      "backup_restore": "ബാക്കപ്പും വീണ്ടെടുക്കലും",
+      "owner_profile": "പ്രൊഫൈൽ",
+      "select_language": "ഭാഷ തിരഞ്ഞെടുക്കുക",
+    },
+    "or": {
+      "app_title": "ସ୍ନାପର୍ ଏଆଇ ଆସିଷ୍ଟାଣ୍ଟ",
+      "made_by": "ସ୍ନାପର୍ ଟେକ୍ନୋଲୋଜି ପ୍ରାଇଭେଟ୍ ଲିମିଟେଡ୍ ଦ୍ୱାରା ନିର୍ମିତ",
+      "greeting": "ରାଧେ ରାଧେ",
+      "model_status": "ଏଆଇ ମଡେଲ୍ ସ୍ୱୟଂ-ଚିହ୍ନଟ",
+      "settings": "ସେଟିଙ୍ଗ୍ସ",
+      "active_mode": "ସକ୍ରିୟ ମୋଡ୍",
+      "radha_jap": "ରାଧା ନାମ ଜପ",
+      "avatar_studio": "ଅବତାର ଷ୍ଟୁଡିଓ",
+      "app_icon_studio": "ଆପ୍ ଆଇକନ୍ ଷ୍ଟୁଡିଓ",
+      "memory_vault": "ସ୍ମୃତି କୋଷ",
+      "device_transfer": "ଡିଭାଇସ୍ ସ୍ଥାନାନ୍ତର",
+      "backup_restore": "ବ୍ୟାକଅପ୍ ଏବଂ ପୁନରୁଦ୍ଧାର",
+      "owner_profile": "ପ୍ରୋଫାଇଲ୍",
+      "select_language": "ଭାଷା ବାଛନ୍ତୁ",
     }
   };
 
@@ -218,7 +318,22 @@ class UserSettings extends ChangeNotifier {
   }
 
   void updateOwnerName(String name) {
-    ownerName = name;
+    // ABSOLUTE BAN ON "BHAI" / "BRO" (Module 35 Directive)
+    if (!isExplicitBhaiAllowed && (name.toLowerCase().contains("bhai") || name.toLowerCase().contains("bro"))) {
+       ownerName = "Sanjiv Sir";
+    } else {
+       ownerName = name;
+    }
+    notifyListeners();
+  }
+
+  void toggleOnlineMode(bool online) {
+    isOnline = online;
+    notifyListeners();
+  }
+
+  void toggleExplicitBhai(bool allowed) {
+    isExplicitBhaiAllowed = allowed;
     notifyListeners();
   }
 
@@ -296,6 +411,55 @@ class UserSettings extends ChangeNotifier {
 
     detectedProvider = resolvedProvider;
     activeModel = detectedModel;
+    notifyListeners();
+  }
+
+  void updateAssistantState(AssistantState newState) {
+    assistantState = newState;
+    switch (newState) {
+      case AssistantState.LISTENING:
+        currentExpressionEmoji = "🎙️";
+        break;
+      case AssistantState.THINKING:
+        currentExpressionEmoji = "💭";
+        break;
+      case AssistantState.SPEAKING:
+        currentExpressionEmoji = "🗣️";
+        break;
+      case AssistantState.HUMOR:
+        currentExpressionEmoji = "😂";
+        break;
+      case AssistantState.ANGER:
+        currentExpressionEmoji = "💢";
+        break;
+      case AssistantState.CAMERA_ACTIVE:
+        currentExpressionEmoji = "📷";
+        break;
+      case AssistantState.TORCH:
+        currentExpressionEmoji = "🔦";
+        break;
+      case AssistantState.AUTOMATION:
+        currentExpressionEmoji = "⚙️";
+        break;
+      case AssistantState.EMERGENCY:
+        currentExpressionEmoji = "🚨";
+        break;
+    }
+    notifyListeners();
+  }
+
+  void updateExpressionEmoji(String emoji) {
+    currentExpressionEmoji = emoji;
+    notifyListeners();
+  }
+
+  void updateLastResponseText(String text) {
+    lastResponseText = text;
+    notifyListeners();
+  }
+
+  void toggleApp(String appName, bool isEnabled) {
+    enabledApps[appName] = isEnabled;
     notifyListeners();
   }
 }

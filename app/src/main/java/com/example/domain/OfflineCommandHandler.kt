@@ -131,9 +131,9 @@ class OfflineCommandHandler(private val context: Context) {
             prefsRepo.updateOwnerTitle("Boss")
             return OfflineCommandResult(isHandled = true, responseText = "जी बिल्कुल Boss! 🫡 From now on, I will address you as Boss.")
         }
-        if (query.contains("sir बोलो") || query.contains("call me sir")) {
-            prefsRepo.updateOwnerTitle("Sir")
-            return OfflineCommandResult(isHandled = true, responseText = "Yes Sir! 🫡 I will address you as Sir.")
+        if (query.contains("sir बोलो") || query.contains("call me sir") || query.contains("sanjiv sir बोलो")) {
+            prefsRepo.updateOwnerTitle("Sanjiv Sir")
+            return OfflineCommandResult(isHandled = true, responseText = "Yes Sanjiv Sir! 🫡 I will address you as Sanjiv Sir.")
         }
 
         // Security Mode voice commands ("security mode on", "restricted mode on", "owner mode on")
@@ -148,9 +148,13 @@ class OfflineCommandHandler(private val context: Context) {
 
         // Mood & Emotional Support ("mood ठीक नहीं है", "मन खराब है", "sad today")
         if (query.contains("mood ठीक नहीं") || query.contains("mood kharab") || query.contains("मन खराब") || query.contains("feeling sad")) {
+            val settings = prefsRepo.userSettingsFlow.firstOrNull() ?: UserSettings()
+            var title = if (settings.ownerTitle.isNotBlank()) settings.ownerTitle else "Sanjiv Sir"
+            if (title.contains("bhai", ignoreCase = true) || title.contains("bro", ignoreCase = true)) title = "Sanjiv Sir"
+
             return OfflineCommandResult(
                 isHandled = true,
-                responseText = "Boss, क्या हुआ? आज थोड़ा परेशान लग रहे हो. बताओ, मैं हूँ ना आपके साथ, सब ठीक हो जाएगा! ❤️"
+                responseText = "$title, क्या हुआ? आज थोड़ा परेशान लग रहे हो. बताओ, मैं हूँ ना आपके साथ, सब ठीक हो जाएगा! ❤️"
             )
         }
 

@@ -14,6 +14,7 @@ class _ControlPanelScreenState extends State<ControlPanelScreen> {
   final TextEditingController _apiKeyController = TextEditingController();
   final TextEditingController _newMemoryController = TextEditingController();
   String _selectedProvider = "Google Gemini";
+  String _appSearchQuery = "";
 
   // Transfer Wizard State
   String _transferRole = ""; // "OLD", "NEW", or ""
@@ -72,6 +73,10 @@ class _ControlPanelScreenState extends State<ControlPanelScreen> {
 
                   // Language selector
                   _buildLanguageSelector(settings),
+                  SizedBox(height: 16),
+
+                  // High-Precision App Selector (Targeting System)
+                  _buildAppSelectorSection(settings),
                   SizedBox(height: 16),
 
                   // Active Operating Modes
@@ -153,7 +158,11 @@ class _ControlPanelScreenState extends State<ControlPanelScreen> {
       "pa": "ਪੰਜਾਬੀ (Punjabi)",
       "ta": "தமிழ் (Tamil)",
       "te": "తెలుగు (Telugu)",
-      "gu": "ગુજરાતી (Gujarati)"
+      "gu": "ગુજરાતી (Gujarati)",
+      "bho": "भोजपुरी (Bhojpuri)",
+      "kn": "ಕನ್ನಡ (Kannada)",
+      "ml": "മലയാളം (Malayalam)",
+      "or": "ଓଡ଼ିଆ (Odia)"
     };
 
     return GlassCard(
@@ -791,6 +800,125 @@ class _ControlPanelScreenState extends State<ControlPanelScreen> {
               if (val != null) {
                 settings.updateAppIcon(val);
               }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppSelectorSection(UserSettings settings) {
+    final filteredApps = settings.enabledApps.entries
+        .where((entry) => entry.key.toLowerCase().contains(_appSearchQuery.toLowerCase()))
+        .toList();
+
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.apps, color: Colors.greenAccent),
+              SizedBox(width: 8),
+              Text(
+                "App Selector & AI OS Access",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          Text(
+            "Grant or revoke AI access. System automations will target ONLY designated and enabled apps.",
+            style: TextStyle(fontSize: 12, color: Colors.white70),
+          ),
+          SizedBox(height: 12),
+          TextField(
+            style: TextStyle(color: Colors.white),
+            onChanged: (val) {
+              setState(() {
+                _appSearchQuery = val;
+              });
+            },
+            decoration: InputDecoration(
+              hintText: "Search apps (e.g. WhatsApp, Instagram)...",
+              hintStyle: TextStyle(color: Colors.white38),
+              prefixIcon: Icon(Icons.search, color: Colors.white38),
+              filled: true,
+              fillColor: Colors.white.withOpacity(0.05),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+          SizedBox(height: 12),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: filteredApps.length,
+            itemBuilder: (context, index) {
+              final app = filteredApps[index];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.03),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: app.value ? Colors.greenAccent.withOpacity(0.2) : Colors.transparent,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            app.key.contains("WhatsApp")
+                                ? Icons.chat
+                                : app.key.contains("Instagram")
+                                    ? Icons.camera_alt
+                                    : app.key.contains("YouTube")
+                                        ? Icons.play_circle_fill
+                                        : Icons.android,
+                            color: app.value ? Colors.greenAccent : Colors.white60,
+                            size: 20,
+                          ),
+                          SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                app.key,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                app.value ? "AI Access Enabled" : "AI Access Blocked",
+                                style: TextStyle(
+                                  color: app.value ? Colors.greenAccent : Colors.redAccent,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Switch(
+                        value: app.value,
+                        activeColor: Colors.greenAccent,
+                        onChanged: (bool val) {
+                          settings.toggleApp(app.key, val);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              );
             },
           ),
         ],

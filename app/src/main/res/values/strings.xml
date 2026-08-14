@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Snaper Technology</string>
+    <string name="app_name">Snaper AI Assistant</string>
     <string name="accessibility_service_label">Snaper AI Screen Assistant</string>
     <string name="accessibility_service_description">Enables Snaper AI Assistant to read screen content, interact with UI elements, perform taps, scroll, and assist with hands-free voice control.</string>
 </resources>

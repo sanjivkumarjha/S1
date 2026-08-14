@@ -26,60 +26,104 @@ import androidx.core.content.ContextCompat
 object PermissionHelper {
 
     fun hasPostNotifications(context: Context): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return true
-        return ContextCompat.checkSelfPermission(
-            context, Manifest.permission.POST_NOTIFICATIONS
-        ) == PackageManager.PERMISSION_GRANTED
+        return try {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) true
+            else ContextCompat.checkSelfPermission(
+                context, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        } catch (e: Exception) {
+            android.util.Log.e("PermissionHelper", "Failed to check post notifications permission: ${e.message}")
+            false
+        }
     }
 
     fun hasRecordAudio(context: Context): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context, Manifest.permission.RECORD_AUDIO
-        ) == PackageManager.PERMISSION_GRANTED
+        return try {
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        } catch (e: Exception) {
+            android.util.Log.e("PermissionHelper", "Failed to check record audio permission: ${e.message}")
+            false
+        }
     }
 
     fun hasCamera(context: Context): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context, Manifest.permission.CAMERA
-        ) == PackageManager.PERMISSION_GRANTED
+        return try {
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        } catch (e: Exception) {
+            android.util.Log.e("PermissionHelper", "Failed to check camera permission: ${e.message}")
+            false
+        }
     }
 
     fun hasCallPhone(context: Context): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context, Manifest.permission.CALL_PHONE
-        ) == PackageManager.PERMISSION_GRANTED
+        return try {
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.CALL_PHONE
+            ) == PackageManager.PERMISSION_GRANTED
+        } catch (e: Exception) {
+            android.util.Log.e("PermissionHelper", "Failed to check call phone permission: ${e.message}")
+            false
+        }
     }
 
     fun hasReadContacts(context: Context): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context, Manifest.permission.READ_CONTACTS
-        ) == PackageManager.PERMISSION_GRANTED
+        return try {
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.READ_CONTACTS
+            ) == PackageManager.PERMISSION_GRANTED
+        } catch (e: Exception) {
+            android.util.Log.e("PermissionHelper", "Failed to check read contacts permission: ${e.message}")
+            false
+        }
     }
 
     fun hasWriteContacts(context: Context): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context, Manifest.permission.WRITE_CONTACTS
-        ) == PackageManager.PERMISSION_GRANTED
+        return try {
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.WRITE_CONTACTS
+            ) == PackageManager.PERMISSION_GRANTED
+        } catch (e: Exception) {
+            android.util.Log.e("PermissionHelper", "Failed to check write contacts permission: ${e.message}")
+            false
+        }
     }
 
     fun hasReadPhoneState(context: Context): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context, Manifest.permission.READ_PHONE_STATE
-        ) == PackageManager.PERMISSION_GRANTED
+        return try {
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.READ_PHONE_STATE
+            ) == PackageManager.PERMISSION_GRANTED
+        } catch (e: Exception) {
+            android.util.Log.e("PermissionHelper", "Failed to check read phone state permission: ${e.message}")
+            false
+        }
     }
 
     fun hasAnswerPhoneCalls(context: Context): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context, Manifest.permission.ANSWER_PHONE_CALLS
-        ) == PackageManager.PERMISSION_GRANTED
+        return try {
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.ANSWER_PHONE_CALLS
+            ) == PackageManager.PERMISSION_GRANTED
+        } catch (e: Exception) {
+            android.util.Log.e("PermissionHelper", "Failed to check answer phone calls permission: ${e.message}")
+            false
+        }
     }
 
     /** Requests POST_NOTIFICATIONS at runtime (Android 13+). No-op on lower APIs. */
     fun requestPostNotifications(activity: Activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            !hasPostNotifications(activity)
-        ) {
-            activity.requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 9101)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                !hasPostNotifications(activity)
+            ) {
+                activity.requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 9101)
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("PermissionHelper", "Failed to request post notifications: ${e.message}")
         }
     }
 }

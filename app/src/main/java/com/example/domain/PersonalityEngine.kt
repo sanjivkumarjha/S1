@@ -38,7 +38,7 @@ object PersonalityEngine {
     /**
      * Generates a personalized greeting for Sanjiv Sir / Owner with "राधे राधे" and time-of-day greeting.
      */
-    fun generateGreeting(ownerName: String = "संजिव सर"): String {
+    fun generateGreeting(ownerName: String = "संजीव सर"): String {
         val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         val timeSalutation = when (hour) {
             in 5..11 -> "Good Morning"
@@ -47,7 +47,11 @@ object PersonalityEngine {
             else -> "Good Night"
         }
 
-        val displayName = if (ownerName.isBlank() || ownerName == "User") "संजिव सर" else ownerName
+        // MODULE 35: Strict Address Protocol & Ban on "Bhai"/"Bro"
+        var displayName = if (ownerName.isBlank() || ownerName == "User" || ownerName == "Boss") "संजीव सर" else ownerName
+        if (displayName.contains("bhai", ignoreCase = true) || displayName.contains("bro", ignoreCase = true)) {
+            displayName = "संजीव सर"
+        }
 
         return when (currentMode) {
             PersonalityMode.CARING -> "राधे राधे! $timeSalutation, $displayName ❤️\nआपकी रोशिनी आपकी सेवा में प्रस्तुत है।"

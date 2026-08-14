@@ -13,7 +13,11 @@ class AiModelRouter(private val context: Context) {
     private val memoryDao by lazy { AppDatabase.getDatabase(context).memoryDao() }
 
     fun buildSystemPrompt(userSettings: UserSettings, memories: List<MemoryEntity>): String {
-        val ownerTitle = if (userSettings.ownerTitle.isNotBlank()) userSettings.ownerTitle else "Boss"
+        // MODULE 35: Strict Address Protocol & Ban on "Bhai"/"Bro"
+        var ownerTitle = if (userSettings.ownerTitle.isNotBlank()) userSettings.ownerTitle else "Sanjiv Sir"
+        if (ownerTitle.contains("bhai", ignoreCase = true) || ownerTitle.contains("bro", ignoreCase = true)) {
+            ownerTitle = "Sanjiv Sir"
+        }
         val assistantName = if (userSettings.assistantName.isNotBlank()) userSettings.assistantName else "Snaper"
         val languagePreference = if (userSettings.languageCode == "hi") "Hindi / Hinglish" else "English / Hinglish"
 
@@ -67,7 +71,8 @@ class AiModelRouter(private val context: Context) {
                 systemPromptOverride = systemPrompt
             )
         } catch (e: Exception) {
-            "I'm here for you, ${userSettings.ownerTitle.ifBlank { "Boss" }}. I had a quick connection hiccup, but my local offline handler is always ready!"
+            // MODULE 34: Local-First Offline & Flight Mode Engine Fallback
+            "संजीव सर, मैं अभी लोकल-फर्स्ट ऑफलाइन इंजन पर हूँ। (I'm here for you, Sanjiv Sir. Connection is down, but my local offline engine is ready!)"
         }
     }
 }

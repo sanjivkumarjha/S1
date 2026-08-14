@@ -11,11 +11,11 @@ plugins {
 }
 
 android {
-  namespace = "com.example"
+  namespace = "com.snaper.aiassistant"
   compileSdk = 35
 
   defaultConfig {
-    applicationId = "com.aistudio.snapertech.aiassistant"
+    applicationId = "com.snaper.aiassistant"
     minSdk = 24
     targetSdk = 35
     versionCode = 1

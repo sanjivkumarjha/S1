@@ -178,11 +178,16 @@ class FindMyAssistantManager private constructor(private val context: Context) :
     }
 
     fun calculateSensorConfidence(
-        ownerName: String = "Sanjiv",
-        ownerTitle: String = "Boss"
+        ownerName: String = "Sanjiv Sir",
+        ownerTitle: String = "Sanjiv Sir"
     ): FindingLocationResult {
         val isCharging = checkIsCharging()
-        val displayName = if (ownerName.isNotBlank() && ownerName != "User") "$ownerName $ownerTitle" else ownerTitle
+        val displayName = if (ownerName.contains("bhai", ignoreCase = true) || ownerName.contains("bro", ignoreCase = true) ||
+            ownerTitle.contains("bhai", ignoreCase = true) || ownerTitle.contains("bro", ignoreCase = true)) {
+            "Sanjiv Sir"
+        } else {
+            if (ownerName.isNotBlank() && ownerName != "User") ownerName else "Sanjiv Sir"
+        }
 
         return when {
             // Case 1: Proximity sensor covered + Near pitch dark (<5 lux) = Under pillow, blanket, or inside bag
@@ -190,8 +195,8 @@ class FindMyAssistantManager private constructor(private val context: Context) :
                 val locName = if (lastAccelMagnitude > 10.2f) "Bag / Backpack" else "Under Pillow / Blanket"
                 FindingLocationResult(
                     confidence = FinderConfidence.HIGH_CONFIDENCE,
-                    hindiText = "$displayName, मैं आपके तकिये या बैग के अंदर हूँ। 🛏️🎒",
-                    englishText = "$displayName, I am under your pillow or inside your bag.",
+                    hindiText = "संजीव जी, मैं यहाँ हूँ! (I am right here under the pillow/blanket)! 🛏️🎒",
+                    englishText = "Sanjiv Sir, I am right here! (I am right here under the pillow/blanket)!",
                     locationName = locName,
                     details = "Proximity Covered • Light: ${currentLux.toInt()} lux • Sensors Matched"
                 )
@@ -201,8 +206,8 @@ class FindMyAssistantManager private constructor(private val context: Context) :
                 val locName = "Bed / Couch (Face Down)"
                 FindingLocationResult(
                     confidence = FinderConfidence.LIKELY,
-                    hindiText = "$displayName, मैं आपके बेड या सोफे पर रखी हूँ। 🛌",
-                    englishText = "$displayName, I am likely face-down on your bed or sofa.",
+                    hindiText = "संजीव जी, मैं यहाँ हूँ! मैं आपके तकिये या बेड पर हूँ। 🛌",
+                    englishText = "Sanjiv Sir, I am right here under the pillow/blanket!",
                     locationName = locName,
                     details = "Low Light (${currentLux.toInt()} lux) • Uncovered Proximity"
                 )
@@ -233,8 +238,8 @@ class FindMyAssistantManager private constructor(private val context: Context) :
             else -> {
                 FindingLocationResult(
                     confidence = FinderConfidence.UNCERTAIN,
-                    hindiText = "$displayName, मुझे सबसे ज्यादा संभावना लग रही है कि मैं आपके कमरे में पास में हूँ, लेकिन exact visual confirm नहीं है। Sound play कर रही हूँ!",
-                    englishText = "$displayName, I am nearby in your room, but cannot visually confirm the exact item. Playing sound!",
+                    hindiText = "संजीव जी, मैं यहाँ हूँ! (I am right here under the pillow/blanket)!",
+                    englishText = "Sanjiv Sir, I am right here! (I am right here under the pillow/blanket)!",
                     locationName = "Nearby Room Space",
                     details = "Light: ${currentLux.toInt()} lux • Playing locator chime"
                 )
@@ -243,8 +248,8 @@ class FindMyAssistantManager private constructor(private val context: Context) :
     }
 
     fun startPhoneFindingWorkflow(
-        ownerName: String = "Sanjiv",
-        ownerTitle: String = "Boss",
+        ownerName: String = "Sanjiv Sir",
+        ownerTitle: String = "Sanjiv Sir",
         onResult: (FindingLocationResult) -> Unit
     ) {
         val result = calculateSensorConfidence(ownerName, ownerTitle)
