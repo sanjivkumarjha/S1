@@ -12,5 +12,8 @@ enum class DynamicIslandState {
     SLEEPING,
     SAD,
     HAPPY,
-    PROCESSING
+    PROCESSING,
+    COLLAPSED,
+    EXPANDED,
+    DYNAMIC_ISLAND_AOD
 }
