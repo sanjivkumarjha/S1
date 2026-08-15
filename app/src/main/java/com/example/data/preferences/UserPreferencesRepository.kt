@@ -130,6 +130,8 @@ data class UserSettings(
     val isAllRounderModeEnabled: Boolean = false,
     val isHomeModeEnabled: Boolean = false,
     val isItBusinessModeEnabled: Boolean = false,
+    val isForceModeEnabled: Boolean = false,
+    val isOwnerVerified: Boolean = false,
     val isLiquidGlassEnabled: Boolean = true,
     val liquidGlassBlurRadius: Float = 16f,
     val isButton3DEffectEnabled: Boolean = true,
@@ -266,6 +268,8 @@ class UserPreferencesRepository(private val context: Context) {
         val IS_ALL_ROUNDER_MODE_ENABLED = booleanPreferencesKey("is_all_rounder_mode_enabled")
         val IS_HOME_MODE_ENABLED = booleanPreferencesKey("is_home_mode_enabled")
         val IS_IT_BUSINESS_MODE_ENABLED = booleanPreferencesKey("is_it_business_mode_enabled")
+        val IS_FORCE_MODE_ENABLED = booleanPreferencesKey("is_force_mode_enabled")
+        val IS_OWNER_VERIFIED = booleanPreferencesKey("is_owner_verified")
         val IS_LIQUID_GLASS_ENABLED = booleanPreferencesKey("is_liquid_glass_enabled")
         val LIQUID_GLASS_BLUR_RADIUS = floatPreferencesKey("liquid_glass_blur_radius")
         val IS_BUTTON_3D_EFFECT_ENABLED = booleanPreferencesKey("is_button_3d_effect_enabled")
@@ -397,6 +401,8 @@ class UserPreferencesRepository(private val context: Context) {
             isAllRounderModeEnabled = prefs[Keys.IS_ALL_ROUNDER_MODE_ENABLED] ?: false,
             isHomeModeEnabled = prefs[Keys.IS_HOME_MODE_ENABLED] ?: false,
             isItBusinessModeEnabled = prefs[Keys.IS_IT_BUSINESS_MODE_ENABLED] ?: false,
+            isForceModeEnabled = prefs[Keys.IS_FORCE_MODE_ENABLED] ?: false,
+            isOwnerVerified = prefs[Keys.IS_OWNER_VERIFIED] ?: false,
             isLiquidGlassEnabled = prefs[Keys.IS_LIQUID_GLASS_ENABLED] ?: true,
             liquidGlassBlurRadius = prefs[Keys.LIQUID_GLASS_BLUR_RADIUS] ?: 16f,
             isButton3DEffectEnabled = prefs[Keys.IS_BUTTON_3D_EFFECT_ENABLED] ?: true,

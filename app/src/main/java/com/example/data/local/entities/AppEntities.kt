@@ -223,6 +223,8 @@ data class CallSummaryEntity(
     val summaryHindi: String = "",
     val summaryEnglish: String = "",
     val transcript: String = "",
-    val timestamp: Long = System.currentTimeMillis()
+    val timestamp: Long = System.currentTimeMillis(),
+    /** Category of the call: "BUSINESS", "FRAUD", "FAMILY", "UNKNOWN" */
+    val category: String = "UNKNOWN"
 )
 

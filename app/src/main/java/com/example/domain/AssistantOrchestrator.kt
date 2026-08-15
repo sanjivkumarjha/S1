@@ -14,6 +14,8 @@ import com.example.security.SecurityManager
 import com.example.security.SecurityMode
 import com.example.security.SecureDeviceAuthManager
 import com.example.security.ThreatDetectionEngine
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 
 /**
  * Central Brain Orchestrator Pipeline for Snaper Technology.
@@ -40,6 +42,17 @@ class AssistantOrchestrator(private val context: Context) {
     val avatarManager = AgentAvatarManager(context)
     val languageAssistant = RealTimeLanguageAssistant(context)
     val communicationManager = UniversalCommunicationManager(context)
+    val forceModeEngine = ForceModeConsensusEngine(context)
+    val ownerFreedomProtocol = OwnerFreedomProtocol(context)
+    val googleDriveBackupManager = GoogleDriveBackupManager(context)
+    val nonVegCulinaryMasterChef = NonVegCulinaryMasterChefEngine(context)
+
+    // MODULE 17-21: Spiritual, Worship, Veg Culinary, Dream Analysis & Indian Snacks/Beverage/Street Food Engines
+    val sanatanDharmaEngine = SanatanDharmaEngine(context)
+    val brahmamuhurtaProtocol = BrahmamuhurtaWorshipProtocol(context)
+    val vegIndianMasterChef = VegIndianMasterChefEngine(context)
+    val swapnaShastraEngine = SwapnaShastraEngine(context)
+    val indianSnacksBeverageEngine = IndianSnacksBeverageEngine(context)
 
     private val restrictedKeywords = listOf("porn", "sex", "adult", "nsfw", "xvideo", "brazzers", "hentai")
     private val restrictedApps = listOf("youtube", "instagram", "twitter", " x ", "facebook")
@@ -240,6 +253,134 @@ class AssistantOrchestrator(private val context: Context) {
                  val groundedRes = engine.searchGroundedQuery(searchQuery, userSettings)
                  return RadheRadheGreetingManager.processGreeting(userId, ownerTitle, groundedRes.text)
              }
+        }
+
+        // 7c. Non-Veg Culinary MasterChef Engine
+        if (lower.contains("chicken") || lower.contains("mutton") || lower.contains("murg") ||
+            lower.contains("fish") || lower.contains("prawn") || lower.contains("crab") ||
+            lower.contains("egg") || lower.contains("anda") || lower.contains("duck") ||
+            lower.contains("non veg") || lower.contains("nonveg") || lower.contains("meat") ||
+            lower.contains("मटन") || lower.contains("मछली") || lower.contains("अंडा") ||
+            lower.contains("मुर्ग") || lower.contains("non-veg") ||
+            lower.contains("marinate") || lower.contains("tenderize") ||
+            lower.contains("cook") && (lower.contains("chicken") || lower.contains("mutton") || lower.contains("fish") || lower.contains("egg")) ||
+            lower.contains("fry") && (lower.contains("chicken") || lower.contains("fish") || lower.contains("prawn")) ||
+            lower.contains("roast") && (lower.contains("chicken") || lower.contains("duck") || lower.contains("mutton")) ||
+            lower.contains("biryani") && (lower.contains("chicken") || lower.contains("mutton") || lower.contains("egg"))) {
+
+            val culinaryResponse = nonVegCulinaryMasterChef.handleCookingQuery(trimmedQuery)
+            return RadheRadheGreetingManager.processGreeting(userId, ownerTitle, culinaryResponse)
+        }
+
+        // MODULE 17: Sanatan Dharma, Puranic Knowledge & Spiritual Defender
+        if (lower.contains("dharma") || lower.contains("धर्म") || lower.contains("sanatan") || lower.contains("सनातन") ||
+            lower.contains("ved") || lower.contains("वेद") || lower.contains("gita") || lower.contains("गीता") ||
+            lower.contains("purana") || lower.contains("पुराण") || lower.contains("upanishad") || lower.contains("उपनिषद") ||
+            lower.contains("ramayana") || lower.contains("रामायण") || lower.contains("mahabharat") || lower.contains("महाभारत") ||
+            lower.contains("mantra") || lower.contains("मंत्र") || lower.contains("jaap") || lower.contains("जाप") ||
+            lower.contains("radha") || lower.contains("राधा") || lower.contains("krishna") || lower.contains("कृष्ण") ||
+            lower.contains("shiva") || lower.contains("शिव") || lower.contains("durga") || lower.contains("दुर्गा") ||
+            lower.contains("kali") || lower.contains("काली") || lower.contains("ganesh") || lower.contains("गणेश") ||
+            lower.contains("jagannath") || lower.contains("जगन्नाथ") || lower.contains("kartikeya") || lower.contains("कार्तिकेय") ||
+            lower.contains("hanuman") || lower.contains("हनुमान") || lower.contains("vishnu") || lower.contains("विष्णु") ||
+            lower.contains("lakshmi") || lower.contains("लक्ष्मी") || lower.contains("saraswati") || lower.contains("सरस्वती") ||
+            lower.contains("atma") || lower.contains("आत्मा") || lower.contains("karma") || lower.contains("कर्म") ||
+            lower.contains("moksha") || lower.contains("मोक्ष") || lower.contains("yoga") || lower.contains("योग") ||
+            lower.contains("reincarnation") || lower.contains("पुनर्जन्म") ||
+            lower.contains("festival") || lower.contains("त्योहार") || lower.contains("diwali") || lower.contains("holi") ||
+            lower.contains("navratri") || lower.contains("janmashtami") || lower.contains("shivaratri") ||
+            lower.contains("dussehra") || lower.contains("raksha") || lower.contains("guru purnima") ||
+            lower.contains("defend") && (lower.contains("dharma") || lower.contains("hindu") || lower.contains("idol") || lower.contains("caste") || lower.contains("cow") || lower.contains("polytheism") || lower.contains("sati")) ||
+            lower.contains("scripture") || lower.contains("शास्त्र") || lower.contains("spiritual") && lower.contains("guidance") ||
+            lower.contains("आध्यात्मिक") || lower.contains("मार्गदर्शन")) {
+
+            val dharmaResponse = sanatanDharmaEngine.handleDharmaQuery(trimmedQuery)
+            return RadheRadheGreetingManager.processGreeting(userId, ownerTitle, dharmaResponse)
+        }
+
+        // MODULE 18: Brahmamuhurta Worship, Radhe-Radhe Invocation & Daily Ritual Protocol
+        if (lower.contains("worship") || lower.contains("पूजन") || lower.contains("पूजा") ||
+            lower.contains("brahmamuhurta") || lower.contains("ब्रह्ममुहूर्त") || lower.contains("brahma muhurta") ||
+            lower.contains("invocation") || lower.contains("वंदना") ||
+            lower.contains("ritual") || lower.contains("अनुष्ठान") || lower.contains("daily routine") || lower.contains("दैनिक") ||
+            lower.contains("worship gate") || lower.contains("can you work") || lower.contains("काम कर सकती") ||
+            (lower.contains("complete") && lower.contains("worship")) || lower.contains("पूजन पूर्ण") || lower.contains("worship done")) {
+
+            val worshipResponse = brahmamuhurtaProtocol.handleWorshipQuery(trimmedQuery)
+            return RadheRadheGreetingManager.processGreeting(userId, ownerTitle, worshipResponse)
+        }
+
+        // MODULE 21: Indian Snacks, Beverages, Street Food & Health-First Proactive Reminders
+        // NOTE: This must come before MODULE 19 (Veg MasterChef) since both handle overlapping
+        // items like chai, lassi, samosa, bhel, pakora, kulfi, jalebi, etc.
+        // MODULE 21 is the dedicated snack/beverage/street food engine and takes priority.
+        if (lower.contains("chai") || lower.contains("tea") || lower.contains("चाय") ||
+            lower.contains("coffee") || lower.contains("कॉफी") || lower.contains("kaapi") ||
+            lower.contains("lassi") || lower.contains("buttermilk") || lower.contains("chaas") ||
+            lower.contains("jaljeera") || lower.contains("sharbat") || lower.contains("nimbu") ||
+            lower.contains("lemonade") || lower.contains("aam panna") || lower.contains("cold drink") ||
+            lower.contains("milkshake") || lower.contains("smoothie") ||
+            lower.contains("pani puri") || lower.contains("golgappa") || lower.contains("gup chup") || lower.contains("phuchka") ||
+            lower.contains("bhel") || lower.contains("pav bhaji") || lower.contains("momo") ||
+            lower.contains("roll") && (lower.contains("kathi") || lower.contains("wrap")) ||
+            lower.contains("vada pav") || lower.contains("vadapav") ||
+            lower.contains("dabeli") || lower.contains("misal") || lower.contains("chaat") ||
+            lower.contains("tikki") || lower.contains("papdi") || lower.contains("sev puri") ||
+            lower.contains("cutlet") || lower.contains("farsan") ||
+            lower.contains("mathri") || lower.contains("bhujia") ||
+            lower.contains("muthia") || lower.contains("fafda") ||
+            lower.contains("jalebi") || lower.contains("malpua") ||
+            lower.contains("kulfi") || lower.contains("rabri") || lower.contains("rabdi") ||
+            lower.contains("health schedule") || lower.contains("दिनचर्या") ||
+            lower.contains("health reminder") || lower.contains("hydrate") || lower.contains("पानी") ||
+            lower.contains("water") && (lower.contains("drink") || lower.contains("पी")) ||
+            lower.contains("beverage") || lower.contains("पेय") || lower.contains("drink") ||
+            lower.contains("street food") || lower.contains("स्ट्रीट फूड") || lower.contains("गली") ||
+            lower.contains("snack") || lower.contains("नाश्ता") || lower.contains("रेसिपी") ||
+            lower.contains("पिलाओ") || lower.contains("पिला") || lower.contains("पीना") ||
+            (lower.contains("make") && (lower.contains("chai") || lower.contains("coffee") || lower.contains("tea"))) ||
+            (lower.contains("banaye") || lower.contains("बनाओ") || lower.contains("बनाना")) && 
+            (lower.contains("chai") || lower.contains("tea") || lower.contains("coffee") || lower.contains("snack") || lower.contains("नाश्ता"))) {
+
+            val snackResponse = indianSnacksBeverageEngine.handleSnackBeverageQuery(trimmedQuery)
+            return RadheRadheGreetingManager.processGreeting(userId, ownerTitle, snackResponse)
+        }
+
+        // MODULE 19: Pure Vegetarian Indian MasterChef & Smart Kitchen Engine
+        // (Main course dishes like paneer, dal, chole, rajma, roti, paratha, biryani, etc.)
+        if (lower.contains("paneer") || lower.contains("dal") || lower.contains("chole") ||
+            lower.contains("rajma") || lower.contains("dosa") || lower.contains("idli") ||
+            lower.contains("vada") || lower.contains("uttapam") || lower.contains("sambhar") || lower.contains("rasam") ||
+            lower.contains("dhokla") || lower.contains("khandvi") || lower.contains("thepla") || lower.contains("undhiyu") ||
+            lower.contains("shukto") || lower.contains("posto") ||
+            lower.contains("roti") || lower.contains("chapati") || lower.contains("paratha") || lower.contains("naan") || lower.contains("puri") ||
+            lower.contains("biryani") || lower.contains("pulao") || lower.contains("khichdi") ||
+            lower.contains("gulab jamun") || lower.contains("rasgulla") ||
+            lower.contains("halwa") || lower.contains("kheer") || lower.contains("ladoo") || lower.contains("barfi") ||
+            lower.contains("veg recipe") || lower.contains("vegetarian") || lower.contains("शाकाहारी") ||
+            lower.contains("व्यंजन") || lower.contains("कैसे बनाये") ||
+            lower.contains("smart cook") || lower.contains("auto cook") || lower.contains("autonomous cook") ||
+            lower.contains("appliance") && (lower.contains("kitchen") || lower.contains("cook")) ||
+            (lower.contains("cook") && !lower.contains("chicken") && !lower.contains("mutton") && !lower.contains("fish") && !lower.contains("egg") && !lower.contains("prawn") && !lower.contains("crab") && !lower.contains("duck") && !lower.contains("meat") && !lower.contains("non veg") && !lower.contains("nonveg") && !lower.contains("non-veg") && !lower.contains("मटन") && !lower.contains("मछली") && !lower.contains("अंडा") && !lower.contains("मुर्ग"))) {
+
+            val vegCulinaryResponse = vegIndianMasterChef.handleVegCookingQuery(trimmedQuery)
+            return RadheRadheGreetingManager.processGreeting(userId, ownerTitle, vegCulinaryResponse)
+        }
+
+        // MODULE 20: Sacred Swapna Shastra & Divine Sign Interpretation
+        if (lower.contains("dream") || lower.contains("स्वप्न") || lower.contains("सपना") || lower.contains("dreamt") ||
+            lower.contains("saw") || lower.contains("देखा") || lower.contains("vision") || lower.contains("दर्शन") ||
+            lower.contains("night") || lower.contains("रात") || lower.contains("sleep") || lower.contains("नींद") ||
+            lower.contains("sign") || lower.contains("शकुन") || lower.contains("omen") || lower.contains("अपशकुन") ||
+            lower.contains("peacock") || lower.contains("मोर") || lower.contains("cow") || lower.contains("गाय") ||
+            lower.contains("eagle") || lower.contains("गरुड़") || lower.contains("butterfly") || lower.contains("तितली") ||
+            lower.contains("crow") || lower.contains("कौवा") || lower.contains("dog") || lower.contains("कुत्ता") ||
+            lower.contains("rainbow") || lower.contains("इंद्रधनुष") || lower.contains("eclipse") || lower.contains("ग्रहण") ||
+            lower.contains("shooting star") || lower.contains("टूटता तारा") || lower.contains("coin") || lower.contains("सिक्का") ||
+            lower.contains("lamp") || lower.contains("दीपक") || lower.contains("flower") || lower.contains("फूल")) {
+
+            val dreamResponse = swapnaShastraEngine.handleDreamQuery(trimmedQuery)
+            return RadheRadheGreetingManager.processGreeting(userId, ownerTitle, dreamResponse)
         }
 
         // 8. General AI Query through AI Model Router

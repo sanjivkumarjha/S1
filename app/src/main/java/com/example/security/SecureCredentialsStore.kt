@@ -39,6 +39,7 @@ class SecureCredentialsStore(private val context: Context) {
         const val OPENROUTER_API_KEY = "openrouter_api_key"
         const val KIMI_API_KEY = "kimi_api_key"
         const val GLM_API_KEY = "glm_api_key"
+        const val ELEVENLABS_API_KEY = "elevenlabs_api_key"
     }
 
     init {

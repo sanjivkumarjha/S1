@@ -20,8 +20,8 @@ data class AppInfo(
     val aliases: List<String> = emptyList(),
     val isSystemApp: Boolean = false,
     val isUserApp: Boolean = true,
-    val versionName: String = "1.0",
-    val versionCode: Long = 1
+    val versionName: String = "28.1.1",
+    val versionCode: Long = 28
 )
 
 sealed class AppLaunchResult {

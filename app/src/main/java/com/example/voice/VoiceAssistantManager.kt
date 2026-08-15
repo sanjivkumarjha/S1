@@ -17,6 +17,9 @@ class VoiceAssistantManager(private val context: Context) : TextToSpeech.OnInitL
 
     private var tts: TextToSpeech? = null
     private var speechRecognizer: SpeechRecognizer? = null
+    private var edgeTtsService: EdgeTtsService? = null
+    private var usePremiumTts: Boolean = false
+    private var elevenLabsApiKey: String? = null
 
     private val _isSpeaking = MutableStateFlow(false)
     val isSpeaking: StateFlow<Boolean> = _isSpeaking.asStateFlow()
@@ -35,6 +38,7 @@ class VoiceAssistantManager(private val context: Context) : TextToSpeech.OnInitL
 
     init {
         tts = TextToSpeech(context.applicationContext, this)
+        edgeTtsService = EdgeTtsService(context)
         if (SpeechRecognizer.isRecognitionAvailable(context)) {
             speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
             speechRecognizer?.setRecognitionListener(this)
@@ -80,11 +84,34 @@ class VoiceAssistantManager(private val context: Context) : TextToSpeech.OnInitL
     }
 
     fun speak(text: String, languageCode: String = "en", utteranceId: String = "SnaperSpeech") {
-        if (_isTtsReady.value) {
-            // Stop speech recognition if listening
-            stopListening()
-            _isSpeaking.value = true
+        stopListening()
+        _isSpeaking.value = true
 
+        // Clean markdown tags for natural speech
+        val cleanText = text.replace(Regex("\\*.*?\\*"), "")
+            .replace("#", "")
+            .replace("`", "")
+        _spokenText.value = cleanText
+        com.example.ui.glass.DynamicIslandImpressionController.setTalking(cleanText)
+
+        // Use Edge-TTS for ultra-natural female voice (free tier)
+        // Falls back to ElevenLabs if premium key is configured
+        if (edgeTtsService != null && !usePremiumTts) {
+            edgeTtsService?.elevenLabsApiKey = elevenLabsApiKey
+            edgeTtsService?.useElevenLabs = usePremiumTts
+            edgeTtsService?.speak(cleanText, languageCode) {
+                _isSpeaking.value = false
+                com.example.ui.glass.DynamicIslandImpressionController.setSleeping()
+            }
+        } else if (usePremiumTts && !elevenLabsApiKey.isNullOrBlank()) {
+            edgeTtsService?.elevenLabsApiKey = elevenLabsApiKey
+            edgeTtsService?.useElevenLabs = true
+            edgeTtsService?.speak(cleanText, languageCode) {
+                _isSpeaking.value = false
+                com.example.ui.glass.DynamicIslandImpressionController.setSleeping()
+            }
+        } else if (_isTtsReady.value) {
+            // Fallback to Android TTS
             val locale = when (languageCode.lowercase()) {
                 "hi", "mai", "bho" -> Locale("hi", "IN")
                 "gu" -> Locale("gu", "IN")
@@ -98,20 +125,24 @@ class VoiceAssistantManager(private val context: Context) : TextToSpeech.OnInitL
                 "or" -> Locale("or", "IN")
                 else -> Locale("en", "IN")
             }
-
             tts?.language = locale
-            // High-pitched, natural sweet female voice tuning
             tts?.setPitch(1.28f)
             tts?.setSpeechRate(1.0f)
-
-            // Clean markdown tags for natural speech
-            val cleanText = text.replace(Regex("\\*.*?\\*"), "")
-                .replace("#", "")
-                .replace("`", "")
-            _spokenText.value = cleanText
             com.example.ui.glass.DynamicIslandImpressionController.setTalking(cleanText)
             tts?.speak(cleanText, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
         }
+    }
+
+    /**
+     * Configure TTS engine preferences.
+     * @param usePremium Set true to use ElevenLabs premium TTS
+     * @param apiKey ElevenLabs API key (required if usePremium is true)
+     */
+    fun configureTts(usePremium: Boolean = false, apiKey: String? = null) {
+        usePremiumTts = usePremium
+        elevenLabsApiKey = apiKey
+        edgeTtsService?.elevenLabsApiKey = apiKey
+        edgeTtsService?.useElevenLabs = usePremium
     }
 
     fun stopSpeaking() {
@@ -152,6 +183,7 @@ class VoiceAssistantManager(private val context: Context) : TextToSpeech.OnInitL
         tts?.stop()
         tts?.shutdown()
         speechRecognizer?.destroy()
+        edgeTtsService?.shutdown()
     }
 
     // RecognitionListener callbacks
