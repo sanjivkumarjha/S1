@@ -17,4 +17,16 @@ object SnaperTheme {
             content = content
         )
     }
+
+    @Composable
+    fun SnaperTheme(
+        themeMode: String = "system",
+        accentColorHex: String = "#4CAF50",
+        dynamicColor: Boolean = false,
+        content: @Composable () -> Unit
+    ) {
+        MaterialTheme(
+            content = content
+        )
+    }
 }

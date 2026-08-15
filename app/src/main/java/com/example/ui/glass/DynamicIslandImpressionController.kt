@@ -44,6 +44,21 @@ object DynamicIslandImpressionController {
         currentText = task
     }
 
+    fun setIncomingCall(callerName: String) {
+        currentState = DynamicIslandState.HAPPY
+        currentText = "Incoming call from $callerName"
+    }
+
+    fun setFlashlightActive(active: Boolean) {
+        currentState = if (active) DynamicIslandState.PROCESSING else DynamicIslandState.IDLE
+        currentText = if (active) "Flashlight ON" else ""
+    }
+
+    fun onForegroundPackageChanged(packageName: String) {
+        currentState = DynamicIslandState.IDLE
+        currentText = ""
+    }
+
     fun getState(): DynamicIslandState = currentState
     fun getText(): String = currentText
 }

@@ -98,6 +98,11 @@ class EncryptedLockCredentialsRepository(private val context: Context) {
         return !getLockPIN().isNullOrBlank()
     }
 
+    fun verifyLockCredential(credential: String): Boolean {
+        val storedPin = getLockPIN() ?: return false
+        return storedPin == credential
+    }
+
     fun clearLockPIN() {
         prefs.edit().remove(PREF_KEY_PIN_CIPHER).remove(PREF_KEY_PIN_IV).apply()
     }

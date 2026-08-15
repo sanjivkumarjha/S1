@@ -156,13 +156,13 @@ class DualEmergencyOverrideEngine(private val context: Context) {
             val maxCall = audioManager?.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL) ?: 15
             audioManager?.setStreamVolume(AudioManager.STREAM_VOICE_CALL, maxCall, 0)
 
-            // 6. Disable DND via NotificationManager
-            val notificationManager = NotificationManagerCompat.from(context)
+            // 6. Disable DND via NotificationManager (platform API for interruption filter)
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 // Check if we have notification policy access
-                if (Settings.System.canWrite(context)) {
+                if (notificationManager.isNotificationPolicyAccessGranted) {
                     notificationManager.setInterruptionFilter(
-                        NotificationManagerCompat.INTERRUPTION_FILTER_ALL
+                        android.app.NotificationManager.INTERRUPTION_FILTER_ALL
                     )
                 }
             }
@@ -232,7 +232,7 @@ class DualEmergencyOverrideEngine(private val context: Context) {
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
                 setAudioSamplingRate(44100)
-                setAudioBitRate(128000)
+                setAudioEncodingBitRate(128000)
                 setOutputFile(audioFile.absolutePath)
 
                 try {
