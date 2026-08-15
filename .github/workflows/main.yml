@@ -24,12 +24,49 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
+    - name: Generate debug keystore (no env secrets required)
+      run: |
+        set -euo pipefail
+        # AGP's built-in debug signing config looks for ~/.android/debug.keystore.
+        # The project's build.gradle.kts also checks ${rootDir}/debug.keystore.
+        # Generate BOTH so that validateSigningDebug can never fail.
+        ROOT_KEYSTORE="${GITHUB_WORKSPACE}/debug.keystore"
+        ANDROID_KEYSTORE="${HOME}/.android/debug.keystore"
+
+        if [ ! -f "$ANDROID_KEYSTORE" ] && [ ! -f "$ROOT_KEYSTORE" ]; then
+          mkdir -p "$(dirname "$ANDROID_KEYSTORE")"
+          keytool -genkeypair -v \
+            -keystore "$ROOT_KEYSTORE" \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+          cp "$ROOT_KEYSTORE" "$ANDROID_KEYSTORE"
+        fi
+        ls -lh "$ROOT_KEYSTORE" "$ANDROID_KEYSTORE"
+
     - name: Build Debug APK
       run: ./gradlew assembleDebug
+
+    - name: Verify debug APK
+      run: |
+        APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
+        if [ -f "$APK_PATH" ]; then
+          echo "✅ Debug APK found at $APK_PATH"
+          ls -lh "$APK_PATH"
+        else
+          echo "❌ Debug APK missing. Searching for any APKs..."
+          find app/build -name "*.apk" -type f 2>/dev/null || true
+          exit 1
+        fi
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
       with:
         name: debug-apk
         path: app/build/outputs/apk/debug/app-debug.apk
-        
+        if-no-files-found: error
+        retention-days: 30

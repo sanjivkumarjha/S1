@@ -23,7 +23,9 @@ android {
   signingConfigs {
     create("release") {
       // No hardcoded keystore requirements. If env vars are set, use them;
-      // otherwise fall back to debug signing at build time so CI always succeeds.
+      // otherwise fall back to the local debug keystore so CI always succeeds.
+      // If neither exists, the config stays empty -> assembleRelease produces
+      // an unsigned APK instead of failing the build.
       val keystorePath = System.getenv("KEYSTORE_PATH")
       if (keystorePath != null && file(keystorePath).exists()) {
         storeFile = file(keystorePath)
@@ -31,17 +33,26 @@ android {
         keyAlias = System.getenv("KEY_ALIAS") ?: "upload"
         keyPassword = System.getenv("KEY_PASSWORD")
       } else {
-        storeFile = file("${rootDir}/debug.keystore")
+        val debugKeystore = file("${rootDir}/debug.keystore")
+        if (debugKeystore.exists()) {
+          storeFile = debugKeystore
+          storePassword = "android"
+          keyAlias = "androiddebugkey"
+          keyPassword = "android"
+        }
+      }
+    }
+    create("debugConfig") {
+      val debugKeystore = file("${rootDir}/debug.keystore")
+      if (debugKeystore.exists()) {
+        storeFile = debugKeystore
         storePassword = "android"
         keyAlias = "androiddebugkey"
         keyPassword = "android"
       }
-    }
-    create("debugConfig") {
-      storeFile = file("${rootDir}/debug.keystore")
-      storePassword = "android"
-      keyAlias = "androiddebugkey"
-      keyPassword = "android"
+      // If debug.keystore doesn't exist, this config remains empty
+      // and the debug buildType below won't reference it, letting
+      // AGP auto-create its built-in ~/.android/debug.keystore.
     }
   }
 
@@ -50,9 +61,20 @@ android {
       isCrunchPngs = false
       isMinifyEnabled = false
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-      signingConfig = signingConfigs.getByName("release")
+      val releaseSigning = signingConfigs.getByName("release")
+      if (releaseSigning.storeFile != null) {
+        signingConfig = releaseSigning
+      }
     }
-    debug { signingConfig = signingConfigs.getByName("debugConfig") }
+    debug {
+      // Only point at our custom debug keystore if it actually exists.
+      // Missing keystore -> AGP falls back to auto-creating ~/.android/debug.keystore,
+      // so validateSigningDebug never fails on GitHub Actions.
+      val debugKeystore = file("${rootDir}/debug.keystore")
+      if (debugKeystore.exists()) {
+        signingConfig = signingConfigs.getByName("debugConfig")
+      }
+    }
   }
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_11
