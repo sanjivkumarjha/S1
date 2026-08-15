@@ -1,7 +1,6 @@
 package com.example.appcontrol
 
 import android.content.Context
-import com.example.BuildConfig
 import com.example.data.preferences.UserSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -65,7 +64,8 @@ class MultimodalEmotionEngine(private val context: Context) {
         transcript: String,
         userSettings: UserSettings
     ): EmotionalReactionResult = withContext(Dispatchers.IO) {
-        val apiKey = if (userSettings.userApiKey.isNotBlank()) userSettings.userApiKey else BuildConfig.GEMINI_API_KEY
+        // Build-time API keys strictly removed.
+        val apiKey = userSettings.userApiKey
         val modelName = if (userSettings.selectedModel.isNotBlank()) userSettings.selectedModel else "gemini-3.5-flash"
 
         val prompt = """

@@ -1,7 +1,6 @@
 package com.example.data.api
 
 import android.content.Context
-import com.example.BuildConfig
 import com.example.data.local.entities.ChatMessageEntity
 import com.example.data.local.entities.MemoryEntity
 import com.example.data.preferences.AiProvider
@@ -59,15 +58,17 @@ class AiRepository(private val context: Context) {
         }
 
         // EMERGENCY MULTI-API LOAD-BALANCING & FALLBACK CASCADE
+        // Note: Fallback only works if the user has provided a universal key or specific provider keys.
+        // In the current architecture, userSettings.userApiKey is the primary key.
         val fallbackProviders = listOf(
-            AiProvider.GEMINI to getApiKeyForProvider(AiProvider.GEMINI, userSettings.userApiKey),
-            AiProvider.OPENROUTER to getApiKeyForProvider(AiProvider.OPENROUTER, userSettings.userApiKey),
-            AiProvider.GROK to getApiKeyForProvider(AiProvider.GROK, userSettings.userApiKey),
-            AiProvider.OPENAI to getApiKeyForProvider(AiProvider.OPENAI, userSettings.userApiKey),
-            AiProvider.CLAUDE to getApiKeyForProvider(AiProvider.CLAUDE, userSettings.userApiKey),
-            AiProvider.NVIDIA to getApiKeyForProvider(AiProvider.NVIDIA, userSettings.userApiKey),
-            AiProvider.KIMI to getApiKeyForProvider(AiProvider.KIMI, userSettings.userApiKey),
-            AiProvider.GLM to getApiKeyForProvider(AiProvider.GLM, userSettings.userApiKey)
+            AiProvider.GEMINI to userSettings.userApiKey,
+            AiProvider.OPENROUTER to userSettings.userApiKey,
+            AiProvider.GROK to userSettings.userApiKey,
+            AiProvider.OPENAI to userSettings.userApiKey,
+            AiProvider.CLAUDE to userSettings.userApiKey,
+            AiProvider.NVIDIA to userSettings.userApiKey,
+            AiProvider.KIMI to userSettings.userApiKey,
+            AiProvider.GLM to userSettings.userApiKey
         )
 
         for ((provider, apiKey) in fallbackProviders) {
@@ -137,18 +138,11 @@ class AiRepository(private val context: Context) {
     }
 
     private fun getApiKeyForProvider(provider: AiProvider, userApiKey: String): String {
-        if (userApiKey.isNotBlank()) return userApiKey
-        return when (provider) {
-            AiProvider.GEMINI -> BuildConfig.GEMINI_API_KEY
-            AiProvider.GROK -> BuildConfig.GROK_API_KEY
-            AiProvider.OPENAI -> BuildConfig.OPENAI_API_KEY
-            AiProvider.CLAUDE -> BuildConfig.CLAUDE_API_KEY
-            AiProvider.NVIDIA -> BuildConfig.NVIDIA_API_KEY
-            AiProvider.OPENROUTER -> BuildConfig.OPENROUTER_API_KEY
-            AiProvider.KIMI -> BuildConfig.KIMI_API_KEY
-            AiProvider.GLM -> BuildConfig.GLM_API_KEY
-            AiProvider.CUSTOM -> userApiKey // No bundled key; user must configure one.
-        }
+        // Build-time API keys are strictly removed. We only use user-provided keys from secure storage.
+        // First try per-provider key from encrypted store, fall back to the universal key.
+        val prefsRepo = com.example.data.preferences.UserPreferencesRepository(context)
+        val providerKey = prefsRepo.getProviderApiKey(provider)
+        return if (!providerKey.isNullOrBlank()) providerKey else userApiKey
     }
 
     suspend fun fetchAvailableModels(

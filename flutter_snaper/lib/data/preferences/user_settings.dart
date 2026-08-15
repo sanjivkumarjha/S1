@@ -74,6 +74,9 @@ class UserSettings extends ChangeNotifier {
   String openaiApiKey = "";
   String anthropicApiKey = "";
   String grokApiKey = "";
+  String nvidiaApiKey = "";
+  String openRouterApiKey = "";
+  String customBaseUrl = "";
   String activeModel = "None";
   String detectedProvider = "No Key Provided";
 

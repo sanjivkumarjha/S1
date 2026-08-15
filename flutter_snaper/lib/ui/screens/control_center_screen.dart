@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:snaper_ai_assistant/data/preferences/user_settings.dart';
 import 'package:snaper_ai_assistant/ui/glass/glass_components.dart';
+import 'package:snaper_ai_assistant/ui/screens/ai_model_settings_screen.dart';
 import 'package:snaper_ai_assistant/services/python_process_bridge.dart';
 
 class ControlCenterScreen extends StatefulWidget {
@@ -341,6 +342,10 @@ class _ControlCenterScreenState extends State<ControlCenterScreen> {
                   _buildAcousticFinderAndConnectivity(width, settings),
                   SizedBox(height: 16),
 
+                  // AI & API Model Settings Link
+                  _buildAiSettingsLink(context, width),
+                  SizedBox(height: 16),
+
                   // Invoices List
                   _buildInvoicesSection(width),
                   SizedBox(height: 24),
@@ -586,6 +591,38 @@ class _ControlCenterScreenState extends State<ControlCenterScreen> {
           SizedBox(height: 2),
           Text(val, style: TextStyle(color: valColor, fontSize: 11, fontWeight: FontWeight.bold)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAiSettingsLink(BuildContext context, double width) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AiModelSettingsScreen()),
+        );
+      },
+      child: GlassCard(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.settings_suggest, color: Colors.blueAccent, size: 28),
+                SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("API & AI Model Settings", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                    Text("Configure Gemini, OpenAI, Claude & more", style: TextStyle(color: Colors.white38, fontSize: 11)),
+                  ],
+                ),
+              ],
+            ),
+            Icon(Icons.arrow_forward_ios, color: Colors.white24, size: 16),
+          ],
+        ),
       ),
     );
   }

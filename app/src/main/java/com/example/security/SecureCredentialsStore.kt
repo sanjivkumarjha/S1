@@ -30,6 +30,15 @@ class SecureCredentialsStore(private val context: Context) {
         private const val AES_MODE = "AES/GCM/NoPadding"
         private const val IV_SUFFIX = "_iv"
         const val USER_API_KEY = "user_api_key"
+        // Per-provider credential keys (stored encrypted)
+        const val GEMINI_API_KEY = "gemini_api_key"
+        const val OPENAI_API_KEY = "openai_api_key"
+        const val CLAUDE_API_KEY = "claude_api_key"
+        const val GROK_API_KEY = "grok_api_key"
+        const val NVIDIA_API_KEY = "nvidia_api_key"
+        const val OPENROUTER_API_KEY = "openrouter_api_key"
+        const val KIMI_API_KEY = "kimi_api_key"
+        const val GLM_API_KEY = "glm_api_key"
     }
 
     init {

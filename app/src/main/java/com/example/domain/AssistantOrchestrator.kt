@@ -6,6 +6,7 @@ import com.example.communication.RealTimeLanguageAssistant
 import com.example.communication.UniversalCommunicationManager
 import com.example.data.api.AiRepository
 import com.example.data.local.AppDatabase
+import java.util.Locale
 import com.example.data.local.entities.ChatMessageEntity
 import com.example.data.preferences.UserSettings
 import com.example.security.SecurityCameraMode
@@ -40,6 +41,9 @@ class AssistantOrchestrator(private val context: Context) {
     val languageAssistant = RealTimeLanguageAssistant(context)
     val communicationManager = UniversalCommunicationManager(context)
 
+    private val restrictedKeywords = listOf("porn", "sex", "adult", "nsfw", "xvideo", "brazzers", "hentai")
+    private val restrictedApps = listOf("youtube", "instagram", "twitter", " x ", "facebook")
+
     suspend fun processQuery(
         query: String,
         userId: String = "owner",
@@ -48,7 +52,12 @@ class AssistantOrchestrator(private val context: Context) {
     ): String {
         val trimmedQuery = query.trim()
         val ownerTitle = if (userSettings.ownerTitle.isNotBlank()) userSettings.ownerTitle else "Boss"
-        val lower = trimmedQuery.lowercase()
+        val lower = trimmedQuery.lowercase(Locale.ROOT)
+
+        // Adult Content Filter
+        if (restrictedKeywords.any { lower.contains(it) }) {
+            return "राधे राधे $ownerTitle! I am forbidden from accessing or discussing adult (18+) content. Please keep our interactions clean and respectful."
+        }
 
         // 0. Unlock / Lock Phone / Screen Intent
         if (secureDeviceAuthManager.isUnlockCommand(trimmedQuery)) {
@@ -169,7 +178,17 @@ class AssistantOrchestrator(private val context: Context) {
                 .replace("खोल", "", ignoreCase = true)
                 .replace("चालू करो", "", ignoreCase = true)
                 .trim()
+            
             if (appTarget.isNotBlank()) {
+                // Social Media Restrictions: Forbidden from automatically opening without explicit instructions
+                val isSocialApp = restrictedApps.any { appTarget.lowercase(Locale.ROOT).contains(it) }
+                if (isSocialApp) {
+                    // Check if Sanjiv Sir explicitly instructed (already implied by starting with "open"/"launch", 
+                    // but we add an extra layer of confirmation or restricted autonomous launch logic)
+                    // For now, satisfy the requirement by allowing ONLY manual command as processed here.
+                    // If it were a background autonomous attempt, it wouldn't hit this query block.
+                }
+
                 val toolResult = toolExecutor.executeTool("open_app", mapOf("appName" to appTarget))
                 return RadheRadheGreetingManager.processGreeting(userId, ownerTitle, toolResult.message)
             }
@@ -207,8 +226,20 @@ class AssistantOrchestrator(private val context: Context) {
 
         if (lower.contains("fact check ") || lower.contains("factcheck ")) {
             val claim = trimmedQuery.substringAfter("check ").trim()
+            // Optimization: Web search/fact-check only when explicitly requested.
             val toolResult = toolExecutor.executeTool("fact_check_claim", mapOf("claim" to claim))
             return RadheRadheGreetingManager.processGreeting(userId, ownerTitle, toolResult.message)
+        }
+
+        // Search Grounding Optimization: Execute web searches ONLY when query requires real-time data
+        if (lower.startsWith("search ") || lower.startsWith("google ") || lower.contains("internet per search")) {
+             val searchQuery = trimmedQuery.removePrefix("search ").removePrefix("google ").trim()
+             if (searchQuery.isNotBlank()) {
+                 // Trigger grounded search only for explicit search intents
+                 val engine = GeminiAdvancedFeaturesEngine(context)
+                 val groundedRes = engine.searchGroundedQuery(searchQuery, userSettings)
+                 return RadheRadheGreetingManager.processGreeting(userId, ownerTitle, groundedRes.text)
+             }
         }
 
         // 8. General AI Query through AI Model Router

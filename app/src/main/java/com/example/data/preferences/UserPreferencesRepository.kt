@@ -589,6 +589,43 @@ class UserPreferencesRepository(private val context: Context) {
         saveRoomPref("selected_model", model)
     }
 
+    /**
+     * Store per-provider API keys in encrypted storage.
+     */
+    suspend fun saveProviderApiKey(provider: AiProvider, apiKey: String) {
+        val keyName = when (provider) {
+            AiProvider.GEMINI -> com.example.security.SecureCredentialsStore.GEMINI_API_KEY
+            AiProvider.OPENAI -> com.example.security.SecureCredentialsStore.OPENAI_API_KEY
+            AiProvider.CLAUDE -> com.example.security.SecureCredentialsStore.CLAUDE_API_KEY
+            AiProvider.GROK -> com.example.security.SecureCredentialsStore.GROK_API_KEY
+            AiProvider.NVIDIA -> com.example.security.SecureCredentialsStore.NVIDIA_API_KEY
+            AiProvider.OPENROUTER -> com.example.security.SecureCredentialsStore.OPENROUTER_API_KEY
+            AiProvider.KIMI -> com.example.security.SecureCredentialsStore.KIMI_API_KEY
+            AiProvider.GLM -> com.example.security.SecureCredentialsStore.GLM_API_KEY
+            AiProvider.CUSTOM -> com.example.security.SecureCredentialsStore.USER_API_KEY
+        }
+        secureCredentials.saveCredential(keyName, apiKey)
+        saveRoomPref("api_key_${provider.name}", if (apiKey.isNotBlank()) "saved" else "")
+    }
+
+    /**
+     * Retrieve per-provider API key from encrypted storage.
+     */
+    fun getProviderApiKey(provider: AiProvider): String? {
+        val keyName = when (provider) {
+            AiProvider.GEMINI -> com.example.security.SecureCredentialsStore.GEMINI_API_KEY
+            AiProvider.OPENAI -> com.example.security.SecureCredentialsStore.OPENAI_API_KEY
+            AiProvider.CLAUDE -> com.example.security.SecureCredentialsStore.CLAUDE_API_KEY
+            AiProvider.GROK -> com.example.security.SecureCredentialsStore.GROK_API_KEY
+            AiProvider.NVIDIA -> com.example.security.SecureCredentialsStore.NVIDIA_API_KEY
+            AiProvider.OPENROUTER -> com.example.security.SecureCredentialsStore.OPENROUTER_API_KEY
+            AiProvider.KIMI -> com.example.security.SecureCredentialsStore.KIMI_API_KEY
+            AiProvider.GLM -> com.example.security.SecureCredentialsStore.GLM_API_KEY
+            AiProvider.CUSTOM -> com.example.security.SecureCredentialsStore.USER_API_KEY
+        }
+        return secureCredentials.getCredential(keyName)
+    }
+
     suspend fun updateVoiceSettings(pitch: Float, rate: Float, autoListen: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[Keys.VOICE_PITCH] = pitch

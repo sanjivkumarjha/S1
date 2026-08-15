@@ -1,7 +1,6 @@
 package com.example.domain
 
 import android.content.Context
-import com.example.BuildConfig
 import com.example.data.preferences.UserSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -62,11 +61,9 @@ class GeminiAdvancedFeaturesEngine(private val context: Context) {
         .build()
 
     private fun getApiKey(userSettings: UserSettings): String {
-        return if (userSettings.userApiKey.isNotBlank()) {
-            userSettings.userApiKey
-        } else {
-            BuildConfig.GEMINI_API_KEY
-        }
+        // Build-time API keys are strictly removed. We only use user-provided keys from secure storage.
+        // Returning userSettings.userApiKey which is fetched dynamically.
+        return userSettings.userApiKey
     }
 
     /**

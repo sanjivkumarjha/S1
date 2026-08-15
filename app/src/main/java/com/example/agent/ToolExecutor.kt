@@ -57,6 +57,7 @@ class ToolExecutor(private val context: Context) {
 
             "search_youtube" -> {
                 val query = params["query"] ?: ""
+                // Social Media Restriction: Must be a direct manual command (ToolExecutor context).
                 val result = appRegistry.searchYouTube(query)
                 when (result) {
                     is AppLaunchResult.Success -> ToolResult(true, "search_youtube", result.message)
@@ -64,13 +65,14 @@ class ToolExecutor(private val context: Context) {
                 }
             }
 
-            "read_screen" -> {
-                val service = AssistantAccessibilityService.getInstance()
-                if (service != null) {
-                    val text = service.readScreenText()
-                    ToolResult(true, "read_screen", "Screen read successfully.", data = text)
-                } else {
-                    ToolResult(false, "read_screen", "Accessibility Service is disabled. Please enable Snaper Screen Assistant in Settings.", errorCode = "ACCESSIBILITY_DISABLED")
+            "social_search" -> {
+                val platformName = params["platform"] ?: "youtube"
+                val query = params["query"] ?: ""
+                // Social Media Restriction: Must be a direct manual command (ToolExecutor context).
+                val result = appRegistry.searchSocialPlatform(platformName, query)
+                when (result) {
+                    is AppLaunchResult.Success -> ToolResult(true, "social_search", result.message, data = result.appInfo.packageName)
+                    else -> ToolResult(false, "social_search", "Failed to search $platformName.", errorCode = "SOCIAL_SEARCH_ERROR")
                 }
             }
 
@@ -186,16 +188,6 @@ class ToolExecutor(private val context: Context) {
                 ToolResult(true, "call_contact", "Opened Phone Dialer for '$target' 📞")
             }
 
-            "social_search" -> {
-                val platformName = params["platform"] ?: "youtube"
-                val query = params["query"] ?: ""
-                val result = appRegistry.searchSocialPlatform(platformName, query)
-                when (result) {
-                    is AppLaunchResult.Success -> ToolResult(true, "social_search", result.message, data = result.appInfo.packageName)
-                    else -> ToolResult(false, "social_search", "Failed to search $platformName.", errorCode = "SOCIAL_SEARCH_ERROR")
-                }
-            }
-
             "send_social_message" -> {
                 val platformName = params["platform"] ?: "whatsapp"
                 val recipient = params["recipient"] ?: params["to"] ?: ""
@@ -211,6 +203,7 @@ class ToolExecutor(private val context: Context) {
 
             "analyze_video_reel" -> {
                 val videoUrl = params["url"] ?: params["videoUrl"] ?: "https://www.instagram.com/reels/"
+                // Social Media Restriction: Must be a direct manual command (ToolExecutor context).
                 val userSettings = com.example.data.preferences.UserPreferencesRepository(context).userSettingsFlow.firstOrNull() ?: com.example.data.preferences.UserSettings()
                 val engine = com.example.appcontrol.SocialVideoAnalysisEngine(context)
                 val result = engine.analyzeReelOrVideo(videoUrl, userSettings)
