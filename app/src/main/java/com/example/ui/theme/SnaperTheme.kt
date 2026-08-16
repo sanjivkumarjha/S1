@@ -2,6 +2,7 @@ package com.example.ui.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import com.example.data.preferences.ThemeMode
 
 /**
  * Snaper AI Assistant Theme.
@@ -20,7 +21,7 @@ object SnaperTheme {
 
     @Composable
     fun SnaperTheme(
-        themeMode: String = "system",
+        themeMode: ThemeMode = ThemeMode.SYSTEM,
         accentColorHex: String = "#4CAF50",
         dynamicColor: Boolean = false,
         content: @Composable () -> Unit

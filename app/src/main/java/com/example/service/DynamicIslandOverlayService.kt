@@ -158,8 +158,8 @@ class DynamicIslandOverlayService : Service(), LifecycleOwner, ViewModelStoreOwn
 
             setContent {
                 val userSettings by prefsRepo.userSettingsFlow.collectAsState(initial = com.example.data.preferences.UserSettings())
-                SnaperTheme(themeMode = userSettings.themeMode, accentColorHex = userSettings.accentColorHex) {
-                    GlossyDynamicIsland(
+                SnaperTheme.SnaperTheme(themeMode = userSettings.themeMode, accentColorHex = userSettings.accentColorHex) {
+                    GlossyDynamicIsland.GlossyDynamicIsland(
                         userSettings = userSettings,
                         islandState = islandState,
                         actionResult = null,
